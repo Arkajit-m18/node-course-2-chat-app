@@ -2,36 +2,25 @@ var socket = io();
 
 socket.on('connect', function() {
     console.log('Connected to server.');
-
-    // socket.emit('createEmail', {
-    //     to: 'jen@example.com',
-    //     text: 'Hey! This is Arkajit.'
-    // });
-    
-    // socket.emit('createMessage', {
-    //     to: 'arka@example.com',
-    //     text: 'Happy Birthday!!',
-    // });
 });
 
-// socket.on('newEmail', function(email) {
-//     console.log('New email: ', email);
-// });
-
-// socket.emit('createMessage', {
-//     from: 'Frank',
-//     text: 'Hi!'
-// }, function(data) {
-//     console.log('Got it. ', data);
-// });
-
 socket.on('newMessage', function(message) {
-    console.log('Got new message: ', message);
     var formattedTime = moment(message.createdAt).format('h:mm a');
-    var li = jQuery('<li></li>');
+    var template = jQuery('#message-template').html();
+    var html = Mustache.render(template, {
+        text: message.text,
+        from: message.from,
+        createdAt: formattedTime
+    });
+
+    jQuery('#messages').append(html);
     
-    li.text(`${message.from} ${formattedTime}: ${message.text}`);
-    jQuery('#messages').append(li);
+    // console.log('Got new message: ', message);
+    // var formattedTime = moment(message.createdAt).format('h:mm a');
+    // var li = jQuery('<li></li>');
+    
+    // li.text(`${message.from} ${formattedTime}: ${message.text}`);
+    // jQuery('#messages').append(li);
 });
 
 jQuery('#message-form').on('submit', function(event) {
@@ -69,13 +58,22 @@ locationButton.on('click', function() {
 
 socket.on('newLocationMessage', function (message) {
     var formattedTime = moment(message.createdAt).format('h:mm a');
-    var li = jQuery('<li></li>');
-    var a = jQuery('<a target="_blank">My current location</a>');
+    var template = jQuery('#location-message-template').html();
+    var html = Mustache.render(template, {
+        from: message.from,
+        createdAt: formattedTime,
+        url: message.url
+    });
     
-    li.text(`${message.from} ${formattedTime}: `);
-    a.attr('href', message.url);
-    li.append(a);
-    jQuery('#messages').append(li);
+    jQuery('#messages').append(html);
+    
+    // var li = jQuery('<li></li>');
+    // var a = jQuery('<a target="_blank">My current location</a>');
+    
+    // li.text(`${message.from} ${formattedTime}: `);
+    // a.attr('href', message.url);
+    // li.append(a);
+    // jQuery('#messages').append(li);
 });
 
 socket.on('disconnect', function() {
