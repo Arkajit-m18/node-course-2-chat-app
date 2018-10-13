@@ -17,7 +17,7 @@ function scrollToBottom() {
 }
 
 socket.on('connect', function() {
-    console.log('Connected to server.');
+    console.log('Connected to server-chat.');
     var params = jQuery.deparam(window.location.search);
 
     socket.emit('join', params, function(error) {
@@ -36,21 +36,30 @@ socket.on('updateUserList', function(users) {
     users.forEach(function(user) {
         ol.append(jQuery('<li></li>').text(user));
     });
-
     jQuery('#users').html(ol);
 });
 
 socket.on('newMessage', function(message) {
+    var params = jQuery.deparam(window.location.search);
     var formattedTime = moment(message.createdAt).format('h:mm a');
     var template = jQuery('#message-template').html();
+    
+    jQuery('#message').append(template);
     var html = Mustache.render(template, {
         text: message.text,
         from: message.from,
         createdAt: formattedTime
     });
-
     jQuery('#messages').append(html);
-    scrollToBottom();
+    
+    var list = jQuery('#messages').children('li:last-child');
+    if (message.from === params.name) {
+        list.css({'float':'right', 'padding':'10px'});
+    }
+    if (message.from === 'Admin') {
+        list.css({'display':'table', 'margin':'0 auto'});
+    }
+    //jQuery('#messages').append(html);
     
     // console.log('Got new message: ', message);
     // var formattedTime = moment(message.createdAt).format('h:mm a');
@@ -58,9 +67,13 @@ socket.on('newMessage', function(message) {
     
     // li.text(`${message.from} ${formattedTime}: ${message.text}`);
     // jQuery('#messages').append(li);
+    
+
+    scrollToBottom();
 });
 
 socket.on('newLocationMessage', function (message) {
+    var params = jQuery.deparam(window.location.search);
     var formattedTime = moment(message.createdAt).format('h:mm a');
     var template = jQuery('#location-message-template').html();
     var html = Mustache.render(template, {
@@ -68,9 +81,12 @@ socket.on('newLocationMessage', function (message) {
         createdAt: formattedTime,
         url: message.url
     });
-    
     jQuery('#messages').append(html);
-    scrollToBottom();
+
+    var list = jQuery('#messages').children('li:last-child');
+    if (message.from === params.name) {
+        list.css({'float':'right', 'padding':'10px'});
+    }
     
     // var li = jQuery('<li></li>');
     // var a = jQuery('<a target="_blank">My current location</a>');
@@ -79,6 +95,8 @@ socket.on('newLocationMessage', function (message) {
     // a.attr('href', message.url);
     // li.append(a);
     // jQuery('#messages').append(li);
+
+    scrollToBottom();
 });
 
 jQuery('#message-form').on('submit', function(event) {
@@ -115,5 +133,5 @@ locationButton.on('click', function() {
 });
 
 socket.on('disconnect', function() {
-    console.log('Disconnected from server.');
+    console.log('Disconnected from server-chat.');
 });

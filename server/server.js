@@ -4,7 +4,7 @@ const express = require('express');
 const socketIO = require('socket.io');
 
 const {generateMessage, generateLocationMessage} = require('./utils/message');
-const {isRealString} = require('./utils/validation');
+const {isRealString, isActive} = require('./utils/validation');
 const {Users} = require('./utils/users');
 
 const publicPath = path.join(__dirname, '../public');
@@ -18,17 +18,24 @@ app.use(express.static(publicPath));
 
 io.on('connection', (socket) => {
     console.log('New user connected.');
+    
+    socket.emit('updateRoomList', users.getActiveRooms());
 
     socket.on('join', (params, callback) => {
         if (!isRealString(params.name) || !isRealString(params.room)) {
             return callback('Name and Room name are equired.');
         }
 
+        if (isActive(params.name, users.users)) {
+            return callback(`${params.name} is currently active in another session. Log out before continuing.`);
+        }
+        params.room = params.room.toLowerCase();
         socket.join(params.room);
         users.removeUser(socket.id);
         users.addUser(socket.id, params.name, params.room);
 
         io.to(params.room).emit('updateUserList', users.getUserList(params.room));
+
         socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app!'));
     
         socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin', `${params.name} has joined.`));
@@ -61,7 +68,6 @@ io.on('connection', (socket) => {
         
         if (user) {
             io.to(user.room).emit('updateUserList', users.getUserList(user.room));
-            
             io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left the room.`));
         }
     });
@@ -70,4 +76,3 @@ io.on('connection', (socket) => {
 server.listen(port, () => {
     console.log(`Started server on port ${port}`);
 });
-

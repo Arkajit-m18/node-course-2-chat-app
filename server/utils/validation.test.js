@@ -1,5 +1,5 @@
 const expect = require('expect');
-var {isRealString} = require('./validation');
+var {isRealString, isActive} = require('./validation');
 
 describe('isRealString', () => {
 
@@ -19,5 +19,34 @@ describe('isRealString', () => {
         var string = '   Arkajit Mondal ';
         var bool = isRealString(string);
         expect(bool).toBe(true);
+    });
+});
+
+describe('isActive', () => {
+
+    it ('should return true if name is present', () => {
+        var name = 'Arkajit';
+        var namesArray = [{
+            name: 'Andrew'
+        }, {
+            name: 'Adam'
+        }, {
+            name: 'Arkajit'
+        }];
+        var bool = isActive(name, namesArray);
+        expect(bool).toBe(true);
+    });
+
+    it ('should return false if name is not present', () => {
+        var name = 'Jen';
+        var namesArray = [{
+            name: 'Andrew'
+        }, {
+            name: 'Adam'
+        }, {
+            name: 'Arkajit'
+        }];
+        var bool = isActive(name, namesArray);
+        expect(bool).toBe(false);
     });
 });

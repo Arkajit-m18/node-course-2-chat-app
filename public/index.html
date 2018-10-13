@@ -15,19 +15,32 @@
             <div class="form-field">
                 <h3>Join a Chat</h3>
             </div>
+
             <div class="form-field">
                 <label>Display name</label>
                 <input type="text" name="name" autofocus/>
             </div>
-            <div class="form-field">
+
+            <!-- <div class="form-field">
                 <label>Room name</label>
                 <input type="text" name="room"/>
+            </div> -->
+
+            <div class="form-field">
+                <label for="room">Rooms</label>
+                <input type="text" name="room" list="active__rooms" autocomplete="off" placeholder="Create/Select Room"/>
+                <datalist id="active__rooms"></datalist>
             </div>
+
             <div class="form-field">
                 <button>Join</button>
             </div>
         </form>
     </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/libs/jquery-3.3.1.min.js"></script>
+    <script src="/js/index.js"></script>
 </body>
 
 </html>
